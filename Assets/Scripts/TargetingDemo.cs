@@ -19,8 +19,8 @@ public class TargetingDemo : MonoBehaviour
     [SerializeField] Transform shot;
     [SerializeField] Transform missile;
 
-    public float shotSpeed = .8f;
-	public float missileSpeed = .4f;
+    public float shotSpeed = .4f;
+	public float missileSpeed = .2f;
 
 	private Camera cam;
 	private Plane[] frustum;
@@ -83,6 +83,12 @@ public class TargetingDemo : MonoBehaviour
 		// TODO this is just for testing
 		shot.position = target;
 
+		// TODO point to the calculated target
+		//var dX:Number = target.x - cannon.x;
+		//var dY:Number = target.y - cannon.y;
+		//var angle:Number = Math.atan2(dY, dX) * 180 / Math.PI + 90;
+		//cannon.rotation = angle;
+
 		if (Input.anyKeyDown) {
 			FireCannon();
 		}
@@ -95,16 +101,20 @@ public class TargetingDemo : MonoBehaviour
 
 	private void UpdateShot()
 	{
+		// TODO
 
+		//check if target intercepted
+		//if (shot.hitTestObject(missile)) {
+		//	shot.y = -5;
+		//}
 	}
 
 	private void UpdateMissile()
 	{
-		//var dY:Number = missileSpeed * Math.cos(missile.rotation * Math.PI / 180);
-		//var dX:Number = missileSpeed * Math.sin(missile.rotation * Math.PI / 180);
-
-		//missile.x += dX;
-		//missile.y -= dY;
+		var missileRadians = missile.eulerAngles.z * Mathf.PI / 180;
+		var dY = missileSpeed * Mathf.Cos(missileRadians);
+		var dX = missileSpeed * Mathf.Sin(missileRadians);
+		missile.position += new Vector3(-dX, dY, 0);
 
 		if (!GeometryUtility.TestPlanesAABB(frustum, missileRenderer.bounds))
 		{
@@ -115,7 +125,7 @@ public class TargetingDemo : MonoBehaviour
 	private void ResetMissile()
 	{
 		missile.position = new Vector3(
-			cam.transform.position.x + (Random.Range(1, -1) * cam.orthographicSize),
+			cam.transform.position.x + (Random.Range(1f, -1f) * cam.orthographicSize),
 			cam.transform.position.y + cam.orthographicSize, 0
 		);
 
@@ -123,68 +133,3 @@ public class TargetingDemo : MonoBehaviour
 		missile.eulerAngles = new Vector3(0, 0, angle);
 	}
 }
-
-/*
-//the targeting algorithm
-private function calcNewTarget(curTarget:Point):Point {
-
-	//calculate how long the shot takes
-	var dX:Number = curTarget.x - cannon.x;
-	var dY:Number = curTarget.y - cannon.y;
-	var dist:Number = Math.sqrt(dX * dX + dY * dY);
-	var time:Number = dist / shotSpeed;
-
-	//calculate where the missile will have moved to
-	dY = time * missileSpeed * Math.cos(missile.rotation * Math.PI / 180);
-	dX = time * missileSpeed * Math.sin(missile.rotation * Math.PI / 180);
-	var newTarget:Point = new Point(missile.x + dX, missile.y - dY);
-
-	return newTarget;
-}
-
-private function updateCannon():void {
-	var target:Point = new Point(missile.x, missile.y);
-	for (var i:int = 0; i < 3; i++) {
-		target = calcNewTarget(target);
-	}
-
-	//point to the calculated target
-	var dX:Number = target.x - cannon.x;
-	var dY:Number = target.y - cannon.y;
-	var angle:Number = Math.atan2(dY, dX) * 180 / Math.PI + 90;
-	cannon.rotation = angle;
-}
-
-		private function updateMissile():void {
-			var dY:Number = missileSpeed * Math.cos(missile.rotation * Math.PI/180);
-			var dX:Number = missileSpeed * Math.sin(missile.rotation * Math.PI/180);
-			
-			missile.x += dX;
-			missile.y -= dY;
-			
-			//reset if moved outside area
-			if (missile.y > stage.stageHeight * .7 || missile.x < -10 || missile.x > stage.stageWidth + 10) {
-				missile.y = -10;
-				missile.x = Math.random() * stage.stageWidth;
-				missile.rotation = Math.random() * 90 + 135;
-			}
-		}
-		
-		private function updateShot():void {
-			var dY:Number = shotSpeed * Math.cos(shot.rotation * Math.PI/180);
-			var dX:Number = shotSpeed * Math.sin(shot.rotation * Math.PI/180);
-			
-			shot.x += dX;
-			shot.y -= dY;
-			
-			//check if target intercepted
-			if (shot.hitTestObject(missile)) {
-				shot.x = -10;
-			}
-			
-			//reset if moved outside area
-			if (shot.y < 0 || shot.x < 0 || shot.x > stage.stageWidth) {
-				shot.x = -10;
-			}
-		}
-*/
