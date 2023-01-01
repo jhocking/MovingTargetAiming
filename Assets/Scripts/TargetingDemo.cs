@@ -19,8 +19,8 @@ public class TargetingDemo : MonoBehaviour
     [SerializeField] Transform shot;
     [SerializeField] Transform missile;
 
-    public float shotSpeed = .4f;
-	public float missileSpeed = .2f;
+    public float shotSpeed = .2f;
+	public float missileSpeed = .1f;
 
 	private Camera cam;
 	private Plane[] frustum;
@@ -65,9 +65,9 @@ public class TargetingDemo : MonoBehaviour
 
 		// calculate where the missile will have moved to
 		var missileDist = time * missileSpeed;
-		var missileRadians = missile.eulerAngles.z * Mathf.PI / 180;
-		var dX = missileDist * Mathf.Sin(missileRadians);
-		var dY = missileDist * Mathf.Cos(missileRadians);
+		var radians = missile.eulerAngles.z * Mathf.PI / 180;
+		var dX = missileDist * Mathf.Sin(radians);
+		var dY = missileDist * Mathf.Cos(radians);
 		var newTarget = missile.position + new Vector3(-dX, dY, 0);
 
 		return newTarget;
@@ -80,14 +80,10 @@ public class TargetingDemo : MonoBehaviour
 			target = CalculateRefinedTarget(target);
 		}
 
-		// TODO this is just for testing
-		shot.position = target;
-
-		// TODO point to the calculated target
-		//var dX:Number = target.x - cannon.x;
-		//var dY:Number = target.y - cannon.y;
-		//var angle:Number = Math.atan2(dY, dX) * 180 / Math.PI + 90;
-		//cannon.rotation = angle;
+		// point to the calculated target
+		var deltaPos = cannon.position - target;
+		var angle = Mathf.Atan2(deltaPos.y, deltaPos.x) * 180 / Mathf.PI + 90;
+		cannon.eulerAngles = new Vector3(0, 0, angle);
 
 		if (Input.anyKeyDown) {
 			FireCannon();
@@ -101,7 +97,10 @@ public class TargetingDemo : MonoBehaviour
 
 	private void UpdateShot()
 	{
-		// TODO
+		var radians = shot.eulerAngles.z * Mathf.PI / 180;
+		var dY = shotSpeed * Mathf.Cos(radians);
+		var dX = shotSpeed * Mathf.Sin(radians);
+		shot.position += new Vector3(-dX, dY, 0);
 
 		//check if target intercepted
 		//if (shot.hitTestObject(missile)) {
@@ -111,9 +110,9 @@ public class TargetingDemo : MonoBehaviour
 
 	private void UpdateMissile()
 	{
-		var missileRadians = missile.eulerAngles.z * Mathf.PI / 180;
-		var dY = missileSpeed * Mathf.Cos(missileRadians);
-		var dX = missileSpeed * Mathf.Sin(missileRadians);
+		var radians = missile.eulerAngles.z * Mathf.PI / 180;
+		var dY = missileSpeed * Mathf.Cos(radians);
+		var dX = missileSpeed * Mathf.Sin(radians);
 		missile.position += new Vector3(-dX, dY, 0);
 
 		if (!GeometryUtility.TestPlanesAABB(frustum, missileRenderer.bounds))
