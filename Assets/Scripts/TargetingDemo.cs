@@ -23,6 +23,8 @@ public class TargetingDemo : MonoBehaviour
 	public float missileSpeed = .4f;
 
 	private Camera cam;
+	private Plane[] frustum;
+
 	private MeshRenderer shotRenderer;
 	private MeshRenderer missileRenderer;
 
@@ -31,16 +33,20 @@ public class TargetingDemo : MonoBehaviour
         // used to spawn missiles according to the camera settings
         cam = Camera.main;
 
+		// beware https://forum.unity.com/threads/checking-if-gameobject-is-visible-by-camera.454021/#post-2942105
+		// instead https://answers.unity.com/questions/560057/detect-if-entity-is-visible-rendererisvisible-will.html
+		frustum = GeometryUtility.CalculateFrustumPlanes(cam);
+
 		// components used for visibility checks
 		shotRenderer = shot.GetComponent<MeshRenderer>();
 		missileRenderer = missile.GetComponent<MeshRenderer>();
-    }
+	}
 
     void Update()
     {
         UpdateMissile();
 
-        if (shotRenderer.isVisible)
+		if (GeometryUtility.TestPlanesAABB(frustum, shotRenderer.bounds))
         {
             UpdateShot();
         }
@@ -53,16 +59,16 @@ public class TargetingDemo : MonoBehaviour
 	// the core function of this targeting algorithm
 	private Vector3 CalculateRefinedTarget(Vector3 curTarget) {
 
-		//calculate how long the shot takes
+		// calculate how long the shot takes
 		var shotDist = Vector3.Distance(cannon.position, curTarget);
 		var time = shotDist / shotSpeed;
 
-		//calculate where the missile will have moved to
+		// calculate where the missile will have moved to
 		var missileDist = time * missileSpeed;
 		var missileRadians = missile.eulerAngles.z * Mathf.PI / 180;
 		var dX = missileDist * Mathf.Sin(missileRadians);
 		var dY = missileDist * Mathf.Cos(missileRadians);
-		var newTarget = missile.position + new Vector3(dX, dY, 0);
+		var newTarget = missile.position + new Vector3(-dX, dY, 0);
 
 		return newTarget;
 	}
@@ -100,7 +106,7 @@ public class TargetingDemo : MonoBehaviour
 		//missile.x += dX;
 		//missile.y -= dY;
 
-		if (!missileRenderer.isVisible)
+		if (!GeometryUtility.TestPlanesAABB(frustum, missileRenderer.bounds))
 		{
 			ResetMissile();
 		}
