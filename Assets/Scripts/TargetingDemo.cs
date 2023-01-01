@@ -22,22 +22,14 @@ public class TargetingDemo : MonoBehaviour
     public float shotSpeed = .8f;
 	public float missileSpeed = .4f;
 
-    private float arenaTop;
-    private float arenaBottom;
-    private float arenaLeft;
-    private float arenaRight;
-
+	private Camera cam;
 	private MeshRenderer shotRenderer;
 	private MeshRenderer missileRenderer;
 
     void Start()
     {
-        // define the arena's bounds according to the camera settings
-        var cam = Camera.main;
-        arenaTop = cam.transform.position.y + cam.orthographicSize;
-        arenaBottom = cam.transform.position.y - cam.orthographicSize;
-        arenaLeft = cam.transform.position.x - cam.orthographicSize;
-        arenaRight = cam.transform.position.x + cam.orthographicSize;
+        // used to spawn missiles according to the camera settings
+        cam = Camera.main;
 
 		// components used for visibility checks
 		shotRenderer = shot.GetComponent<MeshRenderer>();
@@ -66,8 +58,10 @@ public class TargetingDemo : MonoBehaviour
 		var time = shotDist / shotSpeed;
 
 		//calculate where the missile will have moved to
-		var dX = time * missileSpeed * Mathf.Sin(missile.eulerAngles.z * Mathf.PI / 180);
-		var dY = time * missileSpeed * Mathf.Cos(missile.eulerAngles.z * Mathf.PI / 180);
+		var missileDist = time * missileSpeed;
+		var missileRadians = missile.eulerAngles.z * Mathf.PI / 180;
+		var dX = missileDist * Mathf.Sin(missileRadians);
+		var dY = missileDist * Mathf.Cos(missileRadians);
 		var newTarget = missile.position + new Vector3(dX, dY, 0);
 
 		return newTarget;
@@ -100,6 +94,12 @@ public class TargetingDemo : MonoBehaviour
 
 	private void UpdateMissile()
 	{
+		//var dY:Number = missileSpeed * Math.cos(missile.rotation * Math.PI / 180);
+		//var dX:Number = missileSpeed * Math.sin(missile.rotation * Math.PI / 180);
+
+		//missile.x += dX;
+		//missile.y -= dY;
+
 		if (!missileRenderer.isVisible)
 		{
 			ResetMissile();
@@ -108,7 +108,13 @@ public class TargetingDemo : MonoBehaviour
 
 	private void ResetMissile()
 	{
+		missile.position = new Vector3(
+			cam.transform.position.x + (Random.Range(1, -1) * cam.orthographicSize),
+			cam.transform.position.y + cam.orthographicSize, 0
+		);
 
+		var angle = Random.Range(135, 215);
+		missile.eulerAngles = new Vector3(0, 0, angle);
 	}
 }
 
