@@ -580,7 +580,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 9.5, z: -10}
+  m_LocalPosition: {x: 0, y: 10, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -629,9 +629,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f03e0f708fa0d4cdf989a0f4a87eb42c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cannon: {fileID: 1810703243}
-  shot: {fileID: 852027868}
-  missile: {fileID: 777701869}
+  cannon: {fileID: 1810703244}
+  shot: {fileID: 852027872}
+  missile: {fileID: 777701873}
+  shotSpeed: 0.8
+  missileSpeed: 0.4
 --- !u!1 &1810703243
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,17 +15,164 @@ public class TargetingDemo : MonoBehaviour
     // For a "real" project, a better architecture would be for each object
     // to be it's own class with methods. However for this simple demo it was
     // more straightforward to simply control everything in one place.
-    [SerializeField] GameObject cannon;
-    [SerializeField] GameObject shot;
-    [SerializeField] GameObject missile;
+    [SerializeField] Transform cannon;
+    [SerializeField] Transform shot;
+    [SerializeField] Transform missile;
+
+    public float shotSpeed = .8f;
+	public float missileSpeed = .4f;
+
+    private float arenaTop;
+    private float arenaBottom;
+    private float arenaLeft;
+    private float arenaRight;
+
+	private MeshRenderer shotRenderer;
+	private MeshRenderer missileRenderer;
 
     void Start()
     {
-        
+        // define the arena's bounds according to the camera settings
+        var cam = Camera.main;
+        arenaTop = cam.transform.position.y + cam.orthographicSize;
+        arenaBottom = cam.transform.position.y - cam.orthographicSize;
+        arenaLeft = cam.transform.position.x - cam.orthographicSize;
+        arenaRight = cam.transform.position.x + cam.orthographicSize;
+
+		// components used for visibility checks
+		shotRenderer = shot.GetComponent<MeshRenderer>();
+		missileRenderer = missile.GetComponent<MeshRenderer>();
     }
 
     void Update()
     {
-        
+        UpdateMissile();
+
+        if (shotRenderer.isVisible)
+        {
+            UpdateShot();
+        }
+        else
+        {
+            UpdateCannon();
+        }
     }
+
+	// the core function of this targeting algorithm
+	private Vector3 CalculateRefinedTarget(Vector3 curTarget) {
+
+		//calculate how long the shot takes
+		var shotDist = Vector3.Distance(cannon.position, curTarget);
+		var time = shotDist / shotSpeed;
+
+		//calculate where the missile will have moved to
+		var dX = time * missileSpeed * Mathf.Sin(missile.eulerAngles.z * Mathf.PI / 180);
+		var dY = time * missileSpeed * Mathf.Cos(missile.eulerAngles.z * Mathf.PI / 180);
+		var newTarget = missile.position + new Vector3(dX, dY, 0);
+
+		return newTarget;
+	}
+
+	private void UpdateCannon()
+	{
+		var target = missile.position;
+		for (var i = 0; i < 3; i++) {
+			target = CalculateRefinedTarget(target);
+		}
+
+		// TODO this is just for testing
+		shot.position = target;
+
+		if (Input.anyKeyDown) {
+			FireCannon();
+		}
+	}
+
+	private void FireCannon() {
+		shot.position = cannon.position;
+		shot.rotation = cannon.rotation;
+	}
+
+	private void UpdateShot()
+	{
+
+	}
+
+	private void UpdateMissile()
+	{
+		if (!missileRenderer.isVisible)
+		{
+			ResetMissile();
+		}
+	}
+
+	private void ResetMissile()
+	{
+
+	}
 }
+
+/*
+//the targeting algorithm
+private function calcNewTarget(curTarget:Point):Point {
+
+	//calculate how long the shot takes
+	var dX:Number = curTarget.x - cannon.x;
+	var dY:Number = curTarget.y - cannon.y;
+	var dist:Number = Math.sqrt(dX * dX + dY * dY);
+	var time:Number = dist / shotSpeed;
+
+	//calculate where the missile will have moved to
+	dY = time * missileSpeed * Math.cos(missile.rotation * Math.PI / 180);
+	dX = time * missileSpeed * Math.sin(missile.rotation * Math.PI / 180);
+	var newTarget:Point = new Point(missile.x + dX, missile.y - dY);
+
+	return newTarget;
+}
+
+private function updateCannon():void {
+	var target:Point = new Point(missile.x, missile.y);
+	for (var i:int = 0; i < 3; i++) {
+		target = calcNewTarget(target);
+	}
+
+	//point to the calculated target
+	var dX:Number = target.x - cannon.x;
+	var dY:Number = target.y - cannon.y;
+	var angle:Number = Math.atan2(dY, dX) * 180 / Math.PI + 90;
+	cannon.rotation = angle;
+}
+
+		private function updateMissile():void {
+			var dY:Number = missileSpeed * Math.cos(missile.rotation * Math.PI/180);
+			var dX:Number = missileSpeed * Math.sin(missile.rotation * Math.PI/180);
+			
+			missile.x += dX;
+			missile.y -= dY;
+			
+			//reset if moved outside area
+			if (missile.y > stage.stageHeight * .7 || missile.x < -10 || missile.x > stage.stageWidth + 10) {
+				missile.y = -10;
+				missile.x = Math.random() * stage.stageWidth;
+				missile.rotation = Math.random() * 90 + 135;
+			}
+		}
+		
+		private function updateShot():void {
+			var dY:Number = shotSpeed * Math.cos(shot.rotation * Math.PI/180);
+			var dX:Number = shotSpeed * Math.sin(shot.rotation * Math.PI/180);
+			
+			shot.x += dX;
+			shot.y -= dY;
+			
+			//check if target intercepted
+			if (shot.hitTestObject(missile)) {
+				shot.x = -10;
+			}
+			
+			//reset if moved outside area
+			if (shot.y < 0 || shot.x < 0 || shot.x > stage.stageWidth) {
+				shot.x = -10;
+			}
+		}
+*/
