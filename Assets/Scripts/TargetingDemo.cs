@@ -102,10 +102,10 @@ public class TargetingDemo : MonoBehaviour
 		var dX = shotSpeed * Mathf.Sin(radians);
 		shot.position += new Vector3(-dX, dY, 0);
 
-		//check if target intercepted
-		//if (shot.hitTestObject(missile)) {
-		//	shot.y = -5;
-		//}
+		// check if target intercepted
+		if (Vector3.Distance(shot.position, missile.position) < 1) {
+			shot.position = new Vector3(0, -5, 0);
+		}
 	}
 
 	private void UpdateMissile()
