@@ -632,8 +632,8 @@ MonoBehaviour:
   cannon: {fileID: 1810703244}
   shot: {fileID: 852027872}
   missile: {fileID: 777701873}
-  shotSpeed: 0.2
-  missileSpeed: 0.1
+  shotSpeed: 12
+  missileSpeed: 6
 --- !u!1 &1810703243
 GameObject:
   m_ObjectHideFlags: 0

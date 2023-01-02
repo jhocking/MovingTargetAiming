@@ -19,8 +19,8 @@ public class TargetingDemo : MonoBehaviour
     [SerializeField] Transform shot;
     [SerializeField] Transform missile;
 
-    public float shotSpeed = .2f;
-	public float missileSpeed = .1f;
+    public float shotSpeed = 12;
+	public float missileSpeed = 6;
 
 	private Camera cam;
 	private Plane[] frustum;
@@ -98,8 +98,8 @@ public class TargetingDemo : MonoBehaviour
 	private void UpdateShot()
 	{
 		var radians = shot.eulerAngles.z * Mathf.PI / 180;
-		var dY = shotSpeed * Mathf.Cos(radians);
-		var dX = shotSpeed * Mathf.Sin(radians);
+		var dY = shotSpeed * Mathf.Cos(radians) * Time.deltaTime;
+		var dX = shotSpeed * Mathf.Sin(radians) * Time.deltaTime;
 		shot.position += new Vector3(-dX, dY, 0);
 
 		// check if target intercepted
@@ -111,8 +111,8 @@ public class TargetingDemo : MonoBehaviour
 	private void UpdateMissile()
 	{
 		var radians = missile.eulerAngles.z * Mathf.PI / 180;
-		var dY = missileSpeed * Mathf.Cos(radians);
-		var dX = missileSpeed * Mathf.Sin(radians);
+		var dY = missileSpeed * Mathf.Cos(radians) * Time.deltaTime;
+		var dX = missileSpeed * Mathf.Sin(radians) * Time.deltaTime;
 		missile.position += new Vector3(-dX, dY, 0);
 
 		if (!GeometryUtility.TestPlanesAABB(frustum, missileRenderer.bounds))
